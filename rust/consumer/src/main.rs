@@ -88,6 +88,16 @@ async fn start_consumer(
 
                     None => println!("No properties for this message"),
                 }
+
+                match &message.application_properties() {
+                    Some(T) => {
+    
+                        println!("application_properties {:?}", T)
+                  
+                    }
+
+                    None => println!("No application properties for this message"),
+                }
               
 
             

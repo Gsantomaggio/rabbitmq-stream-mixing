@@ -53,6 +53,8 @@ async fn start_publisher(
         batch_send_simple(&producer).await;
         info!("Sending {} simple messages with properties", BATCH_SIZE);
         batch_send_with_properties(&producer).await;
+        info!("Sending {} simple messages with properties and application properties", BATCH_SIZE);
+        batch_send_with_application_properties(&producer).await;
         
     }).await?;
     info!("end im inside start_publisher");
@@ -88,6 +90,48 @@ async fn batch_send_with_properties(producer: &Producer<NoDedup>) {
         .reply_to_group_id("MyReplyToGroupId")
         .user_id("guest".as_bytes())
         .message_builder()
+                
+        .message_annotations()
+      
+        .message_builder()
+        .build();
+    
+        msg.push(message_builder);
+
+    }
+
+    producer
+        .batch_send(msg, move |_| async move {})
+        .await
+        .unwrap();
+
+
+}
+
+async fn batch_send_with_application_properties(producer: &Producer<NoDedup>) {
+    let mut msg = Vec::with_capacity(BATCH_SIZE);
+    for i in 0..BATCH_SIZE {
+        let message_id = String::from(format!("{}{}", "MyMessageId", i));
+        let correlation_id = String::from(format!("{}{}", "MyCorrelationId", i));
+        let message_builder = Message::builder()
+        .body(format!("rust message{}", i))
+        .properties()
+        .message_id(message_id)
+        .correlation_id(correlation_id)
+        .content_type("text/plain")
+        .content_encoding("utf-8")
+        .group_sequence(9999)
+        .reply_to_group_id("MyReplyToGroupId")
+        .user_id("guest".as_bytes())
+        .message_builder()
+        
+        .application_properties()
+        .insert("key_string","value")
+        .insert("key2_int","1111")
+        .insert("key2_decimal","10_000_000_000")
+        
+        .message_builder()
+        
         .message_annotations()
       
         .message_builder()
