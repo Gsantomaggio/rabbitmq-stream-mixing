@@ -4,12 +4,14 @@ PHONY: producer consumer all init
 producer:
 	cd dotnet/stream_client/ && Make producer
 	cd python && Make producer
+	cd python-rstream && Make producer
 	cd rust && Make producer
 	cd java && Make producer
 
 consumer:
 	cd dotnet/stream_client/ && Make consumer
 	cd python && Make consumer
+	cd python-rstream && Make consumer
 	cd rust && Make consumer
 	cd java && Make consumer
 
