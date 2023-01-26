@@ -58,7 +58,7 @@ func main() {
 	handlePublishConfirm(chPublishConfirm)
 
 	var message message.StreamMessage
-	message = amqp.NewMessage([]byte("hello"))
+	message = amqp.NewMessage([]byte("a message send by go-stream-client"))
 	err = producer.Send(message)
 	if err != nil {
 		log.Fatalf("error sending message")
