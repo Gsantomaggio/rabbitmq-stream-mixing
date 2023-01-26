@@ -3,10 +3,10 @@
 
 producer:
 	@echo "running go producer"
-	go run producer/producer.go
+	cd producer/ && go run producer.go
 
 consumer:
 	@echo "running go consumer"
-	go run consumer/consumer.go
+	cd consumer/ && go run consumer.go
 
 all: producer consumer
