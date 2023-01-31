@@ -36,38 +36,88 @@ func main() {
 	)
 
 	if err != nil {
-		log.Fatalf("error creating environment")
+		log.Fatalf("error creating environment: %s", err)
 	}
 
 	streamName := "mixing"
-	err = env.DeclareStream(streamName,
-		stream.NewStreamOptions().
-			SetMaxLengthBytes(stream.ByteCapacity{}.GB(2)))
-
-	if err != nil {
-		log.Fatalf("error declaring stream")
-	}
-
 	producer, err := env.NewProducer(streamName, nil)
 	if err != nil {
-		log.Fatalf("error creating producer")
+		log.Fatalf("error creating producer: %s", err)
 	}
 
 	//optional publish confirmation channel
 	chPublishConfirm := producer.NotifyPublishConfirmation()
 	handlePublishConfirm(chPublishConfirm)
 
-	var message message.StreamMessage
-	message = amqp.NewMessage([]byte("a message send by go-stream-client"))
-	err = producer.Send(message)
+	expiryTime := time.Now().Local().Add(time.Second * time.Duration(600))
+
+	// send basic messages
+	var messages []message.StreamMessage
+	for i := 1; i < 100; i++ {
+		data := fmt.Sprintf("message %v: with body only", i)
+		msg := amqp.NewMessage([]byte(data))
+		messages = append(messages, msg)
+	}
+
+	// send messages with body and properties
+	for i := 1; i < 100; i++ {
+		data := fmt.Sprintf("message %v: body and properties", i)
+		msg := amqp.NewMessage([]byte(data))
+		msg.Properties = &amqp.MessageProperties{
+			MessageID:          i,
+			UserID:             []byte{'1'},
+			To:                 "0",
+			Subject:            "second message",
+			ReplyTo:            "0",
+			CorrelationID:      i * 2,
+			ContentType:        "text/string",
+			ContentEncoding:    "utf-8",
+			AbsoluteExpiryTime: expiryTime,
+			CreationTime:       time.Now(),
+			GroupID:            "groupID",
+			GroupSequence:      8,
+			ReplyToGroupID:     "ReplyToGroupID",
+		}
+		messages = append(messages, msg)
+	}
+
+	// send messages with body, properties, and app properties
+	for i := 1; i < 100; i++ {
+		data := fmt.Sprintf("message %v: with body, properties and app properties", i)
+		msg := amqp.NewMessage([]byte(data))
+		msg.Properties = &amqp.MessageProperties{
+			MessageID:          i * 4,
+			UserID:             []byte{'1'},
+			To:                 "0",
+			Subject:            "third message",
+			ReplyTo:            "0",
+			CorrelationID:      i * 5,
+			ContentType:        "text/string",
+			ContentEncoding:    "utf-8",
+			AbsoluteExpiryTime: expiryTime,
+			CreationTime:       time.Now(),
+			GroupID:            "groupID",
+			GroupSequence:      9,
+			ReplyToGroupID:     "ReplyToGroupID",
+		}
+		msg.ApplicationProperties = map[string]interface{}{
+			"key_string":   "values",
+			"key2_int":     "1111",
+			"key2_decimal": 10.000,
+		}
+		messages = append(messages, msg)
+	}
+
+	err = producer.BatchSend(messages)
+
 	if err != nil {
-		log.Fatalf("error sending message")
+		log.Fatalf("error sending message: %s", err)
 	}
 
 	// sleep to show confirmed messages
 	time.Sleep(1 * time.Second)
 	err = producer.Close()
 	if err != nil {
-		log.Fatalf("error closing producer")
+		log.Fatalf("error closing producer: %s", err)
 	}
 }

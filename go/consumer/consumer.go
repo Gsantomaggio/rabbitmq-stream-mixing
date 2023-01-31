@@ -3,15 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/rabbitmq/rabbitmq-stream-go-client/pkg/amqp"
 	"github.com/rabbitmq/rabbitmq-stream-go-client/pkg/stream"
 )
-
-func consumerClose(channelClose stream.ChannelClose) {
-	event := <-channelClose
-	fmt.Printf("Consumer: %s closed on the stream: %s, reason: %s \n", event.Name, event.StreamName, event.Reason)
-}
 
 func main() {
 	fmt.Println("consumer")
@@ -27,7 +23,7 @@ func main() {
 	)
 
 	if err != nil {
-		log.Fatalf("error creating environment")
+		log.Fatalf("error creating environment: %s", err)
 	}
 
 	handleMessages := func(consumerContext stream.ConsumerContext, message *amqp.Message) {
@@ -43,20 +39,16 @@ func main() {
 			SetCRCCheck(false))                              // Disable crc control, increase the performances
 
 	if err != nil {
-		log.Fatalf("error creating environment")
+		log.Fatalf("error creating environment: %s", err)
 	}
 
-	channelClose := consumer.NotifyClose()
-	// channelClose receives all the closing events, here you can handle the
-	// client reconnection or just log
-	defer consumerClose(channelClose)
-
-	err = env.DeleteStream(streamName)
+	time.Sleep(2000 * time.Millisecond)
+	err = consumer.Close()
 	if err != nil {
-		log.Fatalf("error deleting stream")
+		log.Fatalf("error closing consumer: %s", err)
 	}
 	err = env.Close()
 	if err != nil {
-		log.Fatalf("error closing environment")
+		log.Fatalf("error closing environment: %s", err)
 	}
 }
