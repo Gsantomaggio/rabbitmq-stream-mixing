@@ -1,5 +1,5 @@
 use std::time::{SystemTime, UNIX_EPOCH};
-use rabbitmq_stream_client::{types::Message, Environment, NoDedup, Producer};
+use rabbitmq_stream_client::{types::Message, Environment, TlsConfiguration, NoDedup, Producer};
 use tracing::info;
 use tracing_subscriber::FmtSubscriber;
 
@@ -13,9 +13,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
+    let tls_configuration = TlsConfiguration::builder().build();
+
     let environment = Environment::builder()
         .host("localhost")
-        .port(5552)
+        .port(5551)
+        .tls(tls_configuration)
         .build()
         .await?;
 
@@ -36,6 +39,7 @@ async fn start_publisher(
 
     info!("im inside start_publisher");
     let _ = env.stream_creator().create(&stream).await;
+    
 
     let producer = env
         .producer()
@@ -51,10 +55,10 @@ async fn start_publisher(
         );
         info!("Sending {} simple messages", BATCH_SIZE);
         batch_send_simple(&producer).await;
-        info!("Sending {} simple messages with properties", BATCH_SIZE);
-        batch_send_with_properties(&producer).await;
-        info!("Sending {} simple messages with properties and application properties", BATCH_SIZE);
-        batch_send_with_application_properties(&producer).await;
+        //info!("Sending {} simple messages with properties", BATCH_SIZE);
+        //batch_send_with_properties(&producer).await;
+        //info!("Sending {} simple messages with properties and application properties", BATCH_SIZE);
+        //batch_send_with_application_properties(&producer).await;
         
     }).await?;
     info!("end im inside start_publisher");
@@ -74,6 +78,7 @@ async fn batch_send_simple(producer: &Producer<NoDedup>) {
 
 }
 
+/* 
 async fn batch_send_with_properties(producer: &Producer<NoDedup>) {
     let mut msg = Vec::with_capacity(BATCH_SIZE);
     for i in 0..BATCH_SIZE {
@@ -147,4 +152,4 @@ async fn batch_send_with_application_properties(producer: &Producer<NoDedup>) {
         .unwrap();
 
 
-}
+}*/

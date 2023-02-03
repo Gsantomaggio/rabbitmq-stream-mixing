@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 
-rabbitmq-stream-client = "*"
+rabbitmq-stream-client = { path = "/Users/dpalaia/projects/rabbitmq-stream-rust-client" }
 tracing-subscriber = "0.3.1"
 tracing = "0.1"
 tokio = { version = "1.12.0", features = ["full"] }
