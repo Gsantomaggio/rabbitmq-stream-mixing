@@ -7,6 +7,7 @@ producer:
 	cd rust && Make producer
 	cd java && Make producer
 	cd go && Make producer
+	cd typescript && Make producer
 
 consumer:
 	cd dotnet/stream_client/ && Make consumer
@@ -14,7 +15,7 @@ consumer:
 	cd rust && Make consumer
 	cd java && Make consumer
 	cd go && Make consumer
-
+	cd typescript && Make consumer
 
 init:
 	cd dotnet/stream_client/ && Make init
