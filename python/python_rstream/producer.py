@@ -16,7 +16,7 @@ async def publish():
                 body='hello: {}'.format(i),
             )
             #print (amqp_message)
-            await producer.publish('mixing', amqp_message)
+            await producer.send('mixing', amqp_message)
 
         print ("Sending " + str(MESSAGES) + " simple messages with properties")   
         # sending messages with properties 
@@ -28,7 +28,7 @@ async def publish():
                 properties = message_properties,
             )
             #print (amqp_message)
-            await producer.publish('mixing', amqp_message)   
+            await producer.send('mixing', amqp_message)   
     
         print ("Sending " +  str(MESSAGES) + " simple messages with properties and application properties")   
         # sending messages with properties and application properties
@@ -46,6 +46,6 @@ async def publish():
             
             )
             #print (amqp_message)
-            await producer.publish('mixing', amqp_message)
+            await producer.send('mixing', amqp_message)
 
 asyncio.run(publish())
