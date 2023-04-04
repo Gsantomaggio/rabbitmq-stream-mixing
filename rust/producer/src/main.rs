@@ -14,10 +14,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
     let tls_configuration = TlsConfiguration::builder().build();
+    //.trust_certificate(false)
+    //.trust_hostname(false)
+    //.build();
+  
+
 
     let environment = Environment::builder()
         .host("localhost")
         .port(5551)
+        .username("guest")
+        .password("guest")
         .tls(tls_configuration)
         .build()
         .await?;
@@ -25,7 +32,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     start_publisher(
         environment.clone(),
         &stream_name,
-    ).await;
+    ).await?;
+
+    info!("final ending");
 
     Ok(())
 
@@ -38,7 +47,9 @@ async fn start_publisher(
 ) -> Result<(), Box<dyn std::error::Error>> {
 
     info!("im inside start_publisher");
-    let _ = env.stream_creator().create(&stream).await;
+    //let _ = env.stream_creator().create(&stream).await;
+
+    info!("after im inside start_publisher");
     
 
     let producer = env
@@ -48,6 +59,7 @@ async fn start_publisher(
         .await?;
 
     let is_batch_send = true;
+    info!("before sending");
     tokio::task::spawn(async move {
         info!(
             "Starting producer with batch size {} and batch send {}",
