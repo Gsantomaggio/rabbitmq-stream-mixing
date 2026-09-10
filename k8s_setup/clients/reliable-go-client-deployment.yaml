@@ -36,4 +36,4 @@ spec:
             # target the "tls" RabbitmqCluster LoadBalancer service defined in
             # rabbitmq-server/tree_nodes.yaml, using its generated default-user credentials.
             - name: ADDRESS
-              value: "amqp://$(RABBITMQ_USERNAME):$(RABBITMQ_PASSWORD)@tls.clients-test.svc.cluster.local:5672/"
+              value: "amqp://$(RABBITMQ_USERNAME):$(RABBITMQ_PASSWORD)@tls.default.svc.cluster.local:5672/"
