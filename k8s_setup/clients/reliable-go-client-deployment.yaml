@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reliable-amqp-go-client
-  namespace: clients-test
+  namespace: default
   labels:
     app: reliable-amqp-go-client
 spec:
