@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reliable-amqp-go-client
+  namespace: clients-test
+  labels:
+    app: reliable-amqp-go-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reliable-amqp-go-client
+  template:
+    metadata:
+      labels:
+        app: reliable-amqp-go-client
+    spec:
+      containers:
+        - name: reliable
+          # Build & push from: https://github.com/rabbitmq/rabbitmq-amqp-go-client/blob/feat/docker_test_image/docs/examples/reliable/Dockerfile
+          # Pulled from a local docker registry (e.g. `docker run -d -p 5000:5000 --name registry registry:2`)
+          image: localhost:5000/go-amqp1.0-client:latest
+          imagePullPolicy: Always
+          env:
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: password
+            # Overrides the Dockerfile default (amqp://guest:guest@localhost:5672/) to
+            # target the "tls" RabbitmqCluster LoadBalancer service defined in
+            # rabbitmq-server/tree_nodes.yaml, using its generated default-user credentials.
+            - name: ADDRESS
+              value: "amqp://$(RABBITMQ_USERNAME):$(RABBITMQ_PASSWORD)@tls.clients-test.svc.cluster.local:5672/"
