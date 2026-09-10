@@ -23,7 +23,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: IS_SILENT
-              value: true
+              value: 'true'
             - name: RABBITMQ_USERNAME
               valueFrom:
                 secretKeyRef:
