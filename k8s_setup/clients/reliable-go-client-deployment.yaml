@@ -22,6 +22,8 @@ spec:
           image: localhost:5000/go-amqp1.0-client:latest
           imagePullPolicy: Always
           env:
+            - name: IS_SILENT
+              value: true
             - name: RABBITMQ_USERNAME
               valueFrom:
                 secretKeyRef:
