@@ -24,6 +24,8 @@ spec:
           env:
             - name: IS_SILENT
               value: 'true'
+            - name: DELAY_MESSAGE
+              value: 'true'
             - name: RABBITMQ_USERNAME
               valueFrom:
                 secretKeyRef:
