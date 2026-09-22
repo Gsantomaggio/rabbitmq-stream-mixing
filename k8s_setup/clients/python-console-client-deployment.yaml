@@ -9,11 +9,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: python-console-client
+      app: python-reliable-client
   template:
     metadata:
       labels:
-        app: python-console-client
+        app: python-reliable-client
     spec:
       containers:
         - name: reliable-application
