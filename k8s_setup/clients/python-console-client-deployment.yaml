@@ -16,10 +16,10 @@ spec:
         app: python-console-client
     spec:
       containers:
-        - name: console-application
+        - name: reliable-application
           # Build & push from: https://github.com/rabbitmq/rabbitmq-amqp-python-client/blob/v2_main/docs/examples/docker/Dockerfile
           # Pulled from a local docker registry (e.g. `docker run -d -p 5000:5000 --name registry registry:2`)
-          image: localhost:5000/python-amqp-console-client:latest
+          image: localhost:5000/python-amqp-reliable-client:latest
           imagePullPolicy: Always
           env:
             - name: AMQP_USER
