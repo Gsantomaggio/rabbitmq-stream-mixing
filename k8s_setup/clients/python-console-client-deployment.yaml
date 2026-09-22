@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-console-client
+  namespace: clients-test
+  labels:
+    app: python-console-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-console-client
+  template:
+    metadata:
+      labels:
+        app: python-console-client
+    spec:
+      containers:
+        - name: console-application
+          # Build & push from: https://github.com/rabbitmq/rabbitmq-amqp-python-client/blob/v2_main/docs/examples/docker/Dockerfile
+          # Pulled from a local docker registry (e.g. `docker run -d -p 5000:5000 --name registry registry:2`)
+          image: localhost:5000/python-amqp-console-client:latest
+          imagePullPolicy: Always
+          env:
+            - name: AMQP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: username
+            - name: AMQP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: password
+            # Overrides the Dockerfile defaults (AMQP_HOST=localhost, unset
+            # AMQP_PORT) to target the "tls" RabbitmqCluster LoadBalancer
+            # service defined in rabbitmq-server/tree_nodes.yaml, reachable
+            # cross-namespace via its cluster-DNS name.
+            - name: AMQP_HOST
+              value: "tls.default.svc.cluster.local"
+            - name: AMQP_PORT
+              value: "5672"
