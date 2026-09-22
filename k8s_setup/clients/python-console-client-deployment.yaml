@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: python-console-client
-  namespace: clients-test
+  namespace: default
   labels:
     app: python-console-client
 spec:
