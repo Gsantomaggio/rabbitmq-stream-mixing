@@ -27,12 +27,14 @@ spec:
               containerPort: 6060
           env:
             # Overrides the Dockerfile defaults (RABBITMQ_HOST=localhost, RABBITMQ_PORT=5552) to
-            # target the "tls" RabbitmqCluster LoadBalancer service defined in
-            # rabbitmq-server/three_nodes.yaml.
+            # target the "toxiproxy" Service (toxiproxy/toxiproxy-deployment.yaml), which
+            # forwards to the "tls" RabbitmqCluster LoadBalancer service defined in
+            # rabbitmq-server/three_nodes.yaml. Routing through Toxiproxy lets toxics
+            # (latency, timeouts, resets, ...) be injected on this connection for testing.
             - name: MESSAGES_TO_SEND
               value: "5000000"
             - name: RABBITMQ_HOST
-              value: "tls.default.svc.cluster.local"
+              value: "toxiproxy.default.svc.cluster.local"
             - name: RABBITMQ_PORT
               value: "5552"
             - name: RABBITMQ_USER

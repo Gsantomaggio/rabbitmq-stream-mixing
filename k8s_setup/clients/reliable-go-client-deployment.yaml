@@ -37,7 +37,9 @@ spec:
                   name: tls-default-user
                   key: password
             # Overrides the Dockerfile default (amqp://guest:guest@localhost:5672/) to
-            # target the "tls" RabbitmqCluster LoadBalancer service defined in
-            # rabbitmq-server/tree_nodes.yaml, using its generated default-user credentials.
+            # target the "toxiproxy" Service (toxiproxy/toxiproxy-deployment.yaml), which
+            # forwards to the "tls" RabbitmqCluster LoadBalancer service defined in
+            # rabbitmq-server/tree_nodes.yaml. Routing through Toxiproxy lets toxics
+            # (latency, timeouts, resets, ...) be injected on this connection for testing.
             - name: ADDRESS
-              value: "amqp://$(RABBITMQ_USERNAME):$(RABBITMQ_PASSWORD)@tls.default.svc.cluster.local:5672/"
+              value: "amqp://$(RABBITMQ_USERNAME):$(RABBITMQ_PASSWORD)@toxiproxy.default.svc.cluster.local:5672/"

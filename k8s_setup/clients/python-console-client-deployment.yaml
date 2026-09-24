@@ -33,10 +33,12 @@ spec:
                   name: tls-default-user
                   key: password
             # Overrides the Dockerfile defaults (AMQP_HOST=localhost, unset
-            # AMQP_PORT) to target the "tls" RabbitmqCluster LoadBalancer
-            # service defined in rabbitmq-server/tree_nodes.yaml, reachable
-            # cross-namespace via its cluster-DNS name.
+            # AMQP_PORT) to target the "toxiproxy" Service
+            # (toxiproxy/toxiproxy-deployment.yaml), which forwards to the "tls"
+            # RabbitmqCluster LoadBalancer service defined in
+            # rabbitmq-server/tree_nodes.yaml. Routing through Toxiproxy lets toxics
+            # (latency, timeouts, resets, ...) be injected on this connection for testing.
             - name: AMQP_HOST
-              value: "tls.default.svc.cluster.local"
+              value: "toxiproxy.default.svc.cluster.local"
             - name: AMQP_PORT
               value: "5672"

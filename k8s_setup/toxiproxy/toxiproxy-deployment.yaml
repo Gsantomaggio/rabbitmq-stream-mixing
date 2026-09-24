@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toxiproxy
+  namespace: default
+  labels:
+    app: toxiproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: toxiproxy
+  template:
+    metadata:
+      labels:
+        app: toxiproxy
+    spec:
+      containers:
+        - name: toxiproxy
+          image: ghcr.io/shopify/toxiproxy:2.9.0
+          args:
+            - "-host=0.0.0.0"
+            - "-config=/config/proxies.json"
+          ports:
+            - name: api
+              containerPort: 8474
+            - name: amqp
+              containerPort: 5672
+            - name: stream
+              containerPort: 5552
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: toxiproxy-proxies
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: toxiproxy
+  namespace: default
+spec:
+  selector:
+    app: toxiproxy
+  ports:
+    - name: api
+      port: 8474
+      targetPort: 8474
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: stream
+      port: 5552
+      targetPort: 5552

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: toxiproxy-proxies
+  namespace: default
+data:
+  proxies.json: |
+    [
+      {
+        "name": "rabbitmq-amqp",
+        "listen": "0.0.0.0:5672",
+        "upstream": "tls.default.svc.cluster.local:5672",
+        "enabled": true
+      },
+      {
+        "name": "rabbitmq-stream",
+        "listen": "0.0.0.0:5552",
+        "upstream": "tls.default.svc.cluster.local:5552",
+        "enabled": true
+      }
+    ]
