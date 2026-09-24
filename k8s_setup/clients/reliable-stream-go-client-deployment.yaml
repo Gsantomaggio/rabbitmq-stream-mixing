@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reliable-stream-go-client
+  namespace: default
+  labels:
+    app: reliable-stream-go-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reliable-stream-go-client
+  template:
+    metadata:
+      labels:
+        app: reliable-stream-go-client
+    spec:
+      containers:
+        - name: reliable
+          # Build & push from: https://github.com/rabbitmq/rabbitmq-stream-go-client/tree/main/examples/reliable
+          # docker build -f examples/reliable/Dockerfile -t stream-reliable-client:latest .
+          # Pulled from a local docker registry (e.g. `docker run -d -p 5000:5000 --name registry registry:2`)
+          image: localhost:5000/stream-reliable-client:latest
+          imagePullPolicy: Always
+          ports:
+            - name: pprof
+              containerPort: 6060
+          env:
+            # Overrides the Dockerfile defaults (RABBITMQ_HOST=localhost, RABBITMQ_PORT=5552) to
+            # target the "tls" RabbitmqCluster LoadBalancer service defined in
+            # rabbitmq-server/three_nodes.yaml.
+            - name: RABBITMQ_HOST
+              value: "tls.default.svc.cluster.local"
+            - name: RABBITMQ_PORT
+              value: "5552"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: password
