@@ -30,7 +30,7 @@ spec:
             # target the "tls" RabbitmqCluster LoadBalancer service defined in
             # rabbitmq-server/three_nodes.yaml.
             - name: MESSAGES_TO_SEND
-              value: 5000000
+              value: "5000000"
             - name: RABBITMQ_HOST
               value: "tls.default.svc.cluster.local"
             - name: RABBITMQ_PORT
