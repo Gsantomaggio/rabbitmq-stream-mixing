@@ -81,3 +81,35 @@ Without `toxiproxy-cli`, the same operations work via the REST API, e.g.:
 curl -X POST http://localhost:8474/proxies/rabbitmq-amqp/toxics \
   -d '{"name":"latency_downstream","type":"latency","stream":"downstream","attributes":{"latency":2000,"jitter":500}}'
 ```
+
+## Simulating a periodic reset_peer (e.g. every 60s)
+
+`reset_peer` isn't a repeating timer — once added it stays enabled (resetting every
+connection that flows through it) until removed, and it only fires when traffic is
+actually in flight. To get a one-off reset roughly every 60 seconds, add the toxic,
+wait briefly for it to hit any live connection, then remove it again, on a loop.
+
+**In-cluster (recommended):** `reset-peer-cronjob.yaml` runs this cycle every minute
+against both proxies via a `CronJob` (schedule `* * * * *`), calling the Toxiproxy API
+directly at `http://toxiproxy:8474`:
+
+```
+kubectl apply -f reset-peer-cronjob.yaml
+
+# stop it
+kubectl delete cronjob toxiproxy-reset-peer
+# or pause without deleting
+kubectl patch cronjob toxiproxy-reset-peer -p '{"spec":{"suspend":true}}'
+```
+
+**Ad hoc, from your machine:** with the API port-forwarded (see above), run a loop with
+`toxiproxy-cli`:
+
+```
+while true; do
+  toxiproxy-cli toxic add -t reset_peer -a timeout=0 -n periodic_reset rabbitmq-stream
+  sleep 1
+  toxiproxy-cli toxic remove -n periodic_reset rabbitmq-stream
+  sleep 59
+done
+```

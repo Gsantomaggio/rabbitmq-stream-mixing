@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reliable-dotnet-stream-client
+  namespace: default
+  labels:
+    app: reliable-dotnet-stream-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reliable-dotnet-stream-client
+  template:
+    metadata:
+      labels:
+        app: reliable-dotnet-stream-client
+    spec:
+      containers:
+        - name: reliable
+          # Build & push from: https://github.com/rabbitmq/rabbitmq-stream-dotnet-client/tree/main/docs/ReliableClient
+          # docker build -f docs/ReliableClient/Dockerfile -t dotnet-stream-reliable-client:latest .
+          # Pulled from a local docker registry (e.g. `docker run -d -p 5000:5000 --name registry registry:2`)
+          image: localhost:5000/dotnet-stream-reliable-client:latest
+          imagePullPolicy: Always
+          env:
+            # Overrides the Dockerfile defaults (HOST=localhost, PORT=5552) to
+            # target the "toxiproxy" Service (toxiproxy/toxiproxy-deployment.yaml), which
+            # forwards to the "tls" RabbitmqCluster LoadBalancer service defined in
+            # rabbitmq-server/three_nodes.yaml. Routing through Toxiproxy lets toxics
+            # (latency, timeouts, resets, ...) be injected on this connection for testing.
+            - name: HOST
+              value: "toxiproxy.default.svc.cluster.local"
+            - name: PORT
+              value: "5552"
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tls-default-user
+                  key: password
