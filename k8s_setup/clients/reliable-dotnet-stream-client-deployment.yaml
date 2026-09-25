@@ -28,6 +28,12 @@ spec:
             # forwards to the "tls" RabbitmqCluster LoadBalancer service defined in
             # rabbitmq-server/three_nodes.yaml. Routing through Toxiproxy lets toxics
             # (latency, timeouts, resets, ...) be injected on this connection for testing.
+            - name: LOAD_BALANCER
+              value: "true"
+            - name: SUPER_STREAM
+              value: "true"
+            - name: STREAM_NAME
+              value: "super-stream-net"
             - name: HOST
               value: "toxiproxy.default.svc.cluster.local"
             - name: PORT
